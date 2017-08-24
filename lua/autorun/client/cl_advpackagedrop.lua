@@ -2,7 +2,7 @@ AddCSLuaFile()
 
 function APD_requestPackage(packageinfo)
 
-	APD_packageAssemblyData = {itemNum=#packageinfo.contents, items={}, startTime = CurTime()}
+	APD_packageAssemblyData = {itemNum=#packageinfo.contents, items={}, startTime = CurTime(), lastItem=0}
 	for k, item in pairs(packageinfo.contents) do
 			if ADVPACK_ITEMLIST[item] == nil then
 				print("Error: item "..item.." not defined in the package item list!")
@@ -34,14 +34,23 @@ hook.Add( "HUDPaint", "APD_HUD", function()
 		else
 			local timeLeft = 0
 			local flag = false
+			local itemnum = 0
 			local timePassed = CurTime() - APD_packageAssemblyData.startTime
 			for item, itemData in ipairs(APD_packageAssemblyData.items) do
+				
 				if itemData.totalTime > timePassed then
 					itemData.timeLeft = itemData.totalTime - timePassed
 					timePassed = 0
 					timeLeft = timeLeft + itemData.timeLeft
+					if !flag && itemnum > APD_packageAssemblyData.lastItem then
+						APD_packageAssemblyData.lastItem = itemnum
+						LocalPlayer():EmitSound("garrysmod/content_downloaded.wav", 100, math.random(80, 100))
+						print("Itemnum is now "..itemnum)
+						flag = true
+					end
 				else
 					itemData.timeLeft = 0
+					itemnum = itemnum + 1
 					timePassed = timePassed - itemData.totalTime
 				end
 				local text = itemData.itemName

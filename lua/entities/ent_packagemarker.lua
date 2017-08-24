@@ -13,6 +13,7 @@ end
 if SERVER then
 function ENT:Initialize()
 	self.time = 0
+	self:SetMaterial(4, "weapons/package_marker")
 	self.clientResponded = false
 	self.smokeStarted = false
 	self.isReady = false

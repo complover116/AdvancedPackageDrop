@@ -40,7 +40,7 @@ SWEP.Secondary.DefaultClip = -1
 SWEP.Secondary.Automatic = false
 
 function SWEP:Initialize()
-	self:SetSubMaterial(4, "package_marker")
+	self:SetMaterial(4, "weapons/package_marker")
 	self.canFire = true
 end
 
