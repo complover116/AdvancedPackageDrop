@@ -1,9 +1,13 @@
-include("worldToSkybox.lua")
+AddCSLuaFile("APD/GUI.lua")
+
+APD = {}
+include("APD/worldToSkybox.lua")
 
 util.AddNetworkString("package_request")
-resource.AddFile( "sound/AdvPackageDrop/package_open.wav" )
-resource.AddFile( "sound/AdvPackageDrop/package_impacthigh.wav" )
-resource.AddFile( "sound/AdvPackageDrop/package_impactlow.wav" )
+util.AddNetworkString("package_animate_hud")
+resource.AddFile( "sound/complover116/AdvPackageDrop/package_open.wav" )
+resource.AddFile( "sound/complover116/AdvPackageDrop/package_impacthigh.wav" )
+resource.AddFile( "sound/complover116/AdvPackageDrop/package_impactlow.wav" )
 
 
 
@@ -11,19 +15,23 @@ net.Receive( "package_request", function(length, ply)
 	if ply:GetNetworkedInt("packageStat") == nil || ply:GetNetworkedInt("packageStat") == ADVPACK_STATUS_IDLE then
 		ply.packageInfo = net.ReadTable()
 		ply.packageTime = CurTime()
-		ply.packageShipDelay = 5
+		ply.packageShipDelay = 15
 		ply.packageAssembleDelay = 0
-		for k, item in pairs(ply.packageInfo.contents) do
+		for item, amount in pairs(ply.packageInfo.contents) do
 			if ADVPACK_ITEMLIST[item] == nil then
 				print("Error: item "..item.." not defined in the package item list!")
 				return
 			end
-			ply.packageAssembleDelay = ply.packageAssembleDelay + ADVPACK_ITEMLIST[item].assembleTime
+			ply.packageAssembleDelay = ply.packageAssembleDelay + ADVPACK_ITEMLIST[item].assembleTime*amount
 		end
 		ply:SetNetworkedInt("packageStat", ADVPACK_STATUS_ASSEMBLING)
 		print("Granting package request to "..ply:GetName())
 		ply:Give("weapon_packagemarker")
 		ply:SelectWeapon("weapon_packagemarker")
+		net.Start("package_animate_hud")
+		local CSPackageAnimData = {shippingTime = 15, contents=ply.packageInfo.contents}
+		net.WriteTable(CSPackageAnimData)
+		net.Send(ply)
 	end
 end) 
 
@@ -66,9 +74,9 @@ hook.Add("Think", "ADVPACKTHINK", function()
 				if ply.packageMarker != nil && ply.packageMarker:IsValid() then timer.Simple(5, function() SafeRemoveEntity(packageMarkerToRemove) end) end
 				local pack = ents.Create("ent_advpackage")
 				pack:SetPos(ply.packageSpawnPos)
+				pack.contents = ply.packageInfo.contents
 				pack:Spawn()
 				pack:Activate()
-				pack.contents = ply.packageInfo.contents
 				
 				ply:SetNetworkedInt("packageStat", ADVPACK_STATUS_IDLE)
 			end

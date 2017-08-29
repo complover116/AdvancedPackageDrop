@@ -1,3 +1,4 @@
+AddCSLuaFile()
 
 function EFFECT:Init( data )
 	local vOffset = data:GetOrigin()

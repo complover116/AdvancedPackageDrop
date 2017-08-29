@@ -48,10 +48,12 @@ function ENT:Use(activator, caller, useType, value)
 		gib:GetPhysicsObject():SetVelocity(pos*100)
 	end
 	local corner1, corner2 = self:GetCollisionBounds()
-	for k, v in pairs(self.contents) do
-		item = ents.Create(v)
-		item:SetPos(self:GetPos() + corner1 + (corner2-corner1)*math.random())
-		item:Spawn()
+	for itemClass, amount in pairs(self.contents) do
+		for i = 1, amount do
+			item = ents.Create(itemClass)
+			item:SetPos(self:GetPos() + corner1 + (corner2-corner1)*math.random())
+			item:Spawn()
+		end
 	end
 	self:Remove()
 	end)
