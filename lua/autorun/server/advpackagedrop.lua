@@ -1,4 +1,5 @@
 AddCSLuaFile("APD/GUI.lua")
+AddCSLuaFile("APD/HUDAnim.lua")
 
 APD = {}
 include("APD/worldToSkybox.lua")
